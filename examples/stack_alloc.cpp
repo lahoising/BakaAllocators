@@ -31,6 +31,11 @@ public:
     {
         m_id = id;
         printf("hey from something %d!\n", m_id);
+    } 
+
+    ~Something()
+    {
+        printf("bye from something %d\n", m_id);
     }
 
     BAKA_STACK_ALLOC_NEW_OVERRIDE(GlobalStackAlloc::Get())
@@ -94,7 +99,10 @@ int main(int argc, char *argv[])
 
     Something *a = new Something(10);
     Something *b = (Something*)stack.alloc(sizeof(Something));
-    *b = std::move(Something(5));
+    
+    // warning: this will create two objects, copy the first to the second and destroy the first.
+    // check move contructor and assignment to resolve that.
+    *b = Something(7);  
 
     return 0;
 }
