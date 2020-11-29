@@ -16,6 +16,7 @@ public:
 
     T *Alloc();
     void Free(T *ptr);
+    void Clear();
 
 private:
     inline T *GetNext(T *ptr);
@@ -31,18 +32,15 @@ template <typename T>
 PoolAllocator<T>::PoolAllocator(uint32_t count)
 {
     this->m_pool = (T*)malloc(sizeof(T) * count);
-    this->m_current = m_pool;
     this->m_count = count;
+    this->Clear();
+}
 
-    for(uint32_t i = 0; i < count - 1; i++)
-    {
-        T **dst = (T**)(&m_pool[i]);
-        if(PoolAllocator<T>::m_isLinkedList) 
-            *dst = &m_pool[i+1];
-    }
-
-    T **dst = (T**)(&m_pool[count-1]);
-    if(PoolAllocator<T>::m_isLinkedList) *dst = nullptr;
+template <typename T>
+PoolAllocator<T>::~PoolAllocator()
+{
+    if(this->m_pool) delete (void*)this->m_pool;
+    this->m_pool = nullptr;
 }
 
 template <typename T>
@@ -52,13 +50,6 @@ T *PoolAllocator<T>::Alloc()
     T *allocated = this->m_current;
     this->m_current = this->GetNext(this->m_current);
     return allocated;
-}
-
-template <typename T>
-PoolAllocator<T>::~PoolAllocator()
-{
-    if(this->m_pool) delete (void*)this->m_pool;
-    this->m_pool = nullptr;
 }
 
 template <typename T>
@@ -96,6 +87,22 @@ void PoolAllocator<T>::Free(T *ptr)
         // set prev's next to be ptr
         *(T**)(prev) = ptr;
     }
+}
+
+template <typename T>
+void PoolAllocator<T>::Clear()
+{
+    this->m_current = m_pool;
+
+    for(uint32_t i = 0; i < this->m_count - 1; i++)
+    {
+        T **dst = (T**)(&m_pool[i]);
+        if(PoolAllocator<T>::m_isLinkedList) 
+            *dst = &m_pool[i+1];
+    }
+
+    T **dst = (T**)(&m_pool[this->m_count-1]);
+    if(PoolAllocator<T>::m_isLinkedList) *dst = nullptr;
 }
 
 template <typename T>

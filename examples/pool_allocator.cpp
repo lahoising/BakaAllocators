@@ -74,6 +74,13 @@ int main(int argc, char *argv[])
     delete ab;
     Something *db = new Something(8);
     printf("from db to bb: %llu\n", bb - db);
-    
+
+    printf("clear global alloc\n");
+    MyGlobalPoolAlloc::Get().Clear();
+    ab = new Something(9);
+    bb = new Something(10);
+    cb = new Something(11);
+    printf("from ab to cb: %llu\n", cb - ab);
+
     return 0;
 }
