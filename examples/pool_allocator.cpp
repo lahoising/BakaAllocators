@@ -49,7 +49,18 @@ int main(int argc, char *argv[])
     Something *cb = new Something(7);
     printf("from ab to cb: %llu\n", cb - ab);
 
-    pool.Free(nullptr);
+    try
+    {
+        pool.Free(nullptr);
+    } catch(const std::exception &e)
+    {
+        printf("%s\n", e.what());
+    }
+
+    pool.Free(a);
+    Something *d = pool.Alloc();
+    *d = Something(4);
+    printf("from d to c: %llu\n", c - d);
     
     return 0;
 }

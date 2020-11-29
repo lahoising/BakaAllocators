@@ -68,11 +68,14 @@ void PoolAllocator<T>::Free(T *ptr)
             128, 
             "trying to free pointer %p that is not part of the specified pool allocator", 
             ptr);
-        printf("%s", msg);
         throw std::runtime_error(msg);
     }
 
-
+    if(this->m_current > ptr)
+    {
+        *(T**)(ptr) = this->m_current;
+        this->m_current = ptr;
+    }
 }
 
 } // namespace baka
