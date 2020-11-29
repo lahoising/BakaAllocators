@@ -57,5 +57,15 @@ PoolAllocator<T>::~PoolAllocator()
 
 } // namespace baka
 
+/**
+ * @brief override operator new so it returns a pointer from the allocator's memory
+ * @param allocator the pool allocator to get the memory from
+ * @note this is meant to be placed inside a class
+ */
+#define BAKA_POOL_ALLOC_NEW_OVERRIDE(allocator)\
+static void *operator new(size_t n) {\
+    return allocator.Alloc();\
+}
+
 #endif
     

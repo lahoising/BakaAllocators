@@ -8,6 +8,16 @@ namespace baka
     namespace alloc
     {
         typedef size_t Marker;
+
+        template<typename Alloc, size_t n>
+        class GlobalAlloc
+        {
+        public:
+            static Alloc &Get() {
+                static Alloc pool = Alloc(n);
+                return pool;
+            }
+        };
     }
 }
 
