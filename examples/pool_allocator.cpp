@@ -12,10 +12,21 @@ class MyGlobalPoolAlloc :
 class Something
 {
 public:
-    Something(uint32_t b){this->b = b; printf("create something %u\n", this->b);}
-    ~Something(){printf("goobye cruel mem %u\n", this->b);}
+    Something(uint32_t b)
+    {
+        this->b = b; 
+        printf("create something %u\n", this->b);
+        this->yes = true;
+    }
+
+    ~Something()
+    {
+        printf("goobye cruel mem %u\n", this->b); 
+        this->yes = false;
+    }
 
     BAKA_POOL_ALLOC_NEW_OVERRIDE(MyGlobalPoolAlloc::Get())
+    BAKA_POOL_ALLOC_DELETE_OVERRIDE(MyGlobalPoolAlloc::Get(), Something)
 
 public:
     int a[8];
@@ -29,15 +40,12 @@ int main(int argc, char *argv[])
     
     Something *a = pool.Alloc();
     *a = Something(1);
-    a->yes = true;
     
     Something *b = pool.Alloc();
     *b = Something(2);
-    b->yes = false;
 
     Something *c = pool.Alloc();
     *c = Something(3);
-    c->yes = a->yes & b->yes;
 
     printf("from a to b: %llu\n", b - a);
     printf("from a to c: %llu\n", c - a);
@@ -61,6 +69,11 @@ int main(int argc, char *argv[])
     Something *d = pool.Alloc();
     *d = Something(4);
     printf("from d to c: %llu\n", c - d);
+
+    delete cb;
+    delete ab;
+    Something *db = new Something(8);
+    printf("from db to bb: %llu\n", bb - db);
     
     return 0;
 }

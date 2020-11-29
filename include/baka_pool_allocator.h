@@ -18,6 +18,9 @@ public:
     void Free(T *ptr);
 
 private:
+    inline T *GetNext(T *ptr);
+
+private:
     T *m_pool;
     T *m_current;
     uint32_t m_count;
@@ -47,14 +50,15 @@ T *PoolAllocator<T>::Alloc()
 {
     if(!this->m_current) return nullptr;
     T *allocated = this->m_current;
-    this->m_current = *(T**)(this->m_current);
+    this->m_current = this->GetNext(this->m_current);
     return allocated;
 }
 
 template <typename T>
 PoolAllocator<T>::~PoolAllocator()
 {
-    if(this->m_pool) delete this->m_pool;
+    if(this->m_pool) delete (void*)this->m_pool;
+    this->m_pool = nullptr;
 }
 
 template <typename T>
@@ -76,6 +80,28 @@ void PoolAllocator<T>::Free(T *ptr)
         *(T**)(ptr) = this->m_current;
         this->m_current = ptr;
     }
+    else
+    {
+        // find the last free block before pointer
+        T *prev = this->m_current;
+        T *next = this->GetNext(prev);
+        while( next < ptr )
+        {
+            prev = next;
+            next = this->GetNext(prev);
+        }
+
+        // set ptr to point to prev's next
+        *(T**)(ptr) = this->GetNext(prev);
+        // set prev's next to be ptr
+        *(T**)(prev) = ptr;
+    }
+}
+
+template <typename T>
+T *PoolAllocator<T>::GetNext(T *ptr)
+{
+    return *(T**)(ptr);
 }
 
 } // namespace baka
@@ -88,6 +114,11 @@ void PoolAllocator<T>::Free(T *ptr)
 #define BAKA_POOL_ALLOC_NEW_OVERRIDE(allocator)\
 static void *operator new(size_t n) {\
     return allocator.Alloc();\
+}
+
+#define BAKA_POOL_ALLOC_DELETE_OVERRIDE(allocator, type)\
+static void operator delete(void *ptr, size_t n) {\
+    allocator.Free((type*)ptr);\
 }
 
 #endif
