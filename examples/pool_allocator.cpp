@@ -48,6 +48,8 @@ int main(int argc, char *argv[])
     Something *bb = new Something(6);
     Something *cb = new Something(7);
     printf("from ab to cb: %llu\n", cb - ab);
+
+    pool.Free(nullptr);
     
     return 0;
 }

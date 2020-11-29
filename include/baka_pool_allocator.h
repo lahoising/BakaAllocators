@@ -2,6 +2,7 @@
 #define _BAKA_POOL_ALLOCATOR_H_
 
 #include <baka_alloc_commons.h>
+#include <stdexcept>
 
 namespace baka
 {
@@ -14,6 +15,7 @@ public:
     ~PoolAllocator();
 
     T *Alloc();
+    void Free(T *ptr);
 
 private:
     T *m_pool;
@@ -53,6 +55,24 @@ template <typename T>
 PoolAllocator<T>::~PoolAllocator()
 {
     if(this->m_pool) delete this->m_pool;
+}
+
+template <typename T>
+void PoolAllocator<T>::Free(T *ptr)
+{
+    if(ptr < this->m_pool || ptr > this->m_pool + this->m_count) 
+    {
+        char msg[128];
+        std::snprintf(
+            msg, 
+            128, 
+            "trying to free pointer %p that is not part of the specified pool allocator", 
+            ptr);
+        printf("%s", msg);
+        throw std::runtime_error(msg);
+    }
+
+
 }
 
 } // namespace baka
