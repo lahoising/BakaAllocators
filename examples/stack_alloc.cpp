@@ -15,6 +15,30 @@ struct Person
     char *vocation;
 };
 
+class GlobalStackAlloc
+{
+public:
+    static baka::StackAllocator &Get() { 
+        static baka::StackAllocator stack = baka::StackAllocator(4096);
+        return stack; 
+    }
+};
+
+class Something
+{
+public:
+    Something(int id)
+    {
+        m_id = id;
+        printf("hey from something %d!\n", m_id);
+    }
+
+    BAKA_STACK_ALLOC_NEW_OVERRIDE(GlobalStackAlloc::Get())
+
+private:
+    int m_id;
+};
+
 void person_greet(Person *person)
 {
     printf("Hey! I'm %s, a %d years old %s\n", person->name, person->age, person->vocation);
@@ -67,6 +91,10 @@ int main(int argc, char *argv[])
     printf("clear stack\n");
     stack.clear();
     print_stack(&stack);
+
+    Something *a = new Something(10);
+    Something *b = (Something*)stack.alloc(sizeof(Something));
+    *b = std::move(Something(5));
 
     return 0;
 }

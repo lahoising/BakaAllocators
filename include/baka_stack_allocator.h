@@ -55,6 +55,11 @@ private:
     size_t m_sizeOfStack;
 };
 
+#define BAKA_STACK_ALLOC_NEW_OVERRIDE(allocator)\
+static void *operator new(size_t size) {\
+    return allocator.alloc(size);\
+}
+
 } // namespace baka
 
 #endif
