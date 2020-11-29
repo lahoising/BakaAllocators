@@ -9,6 +9,12 @@ class MyGlobalPoolAlloc :
         32                              // 32 objects (32 * sizeof(Something) bytes)
     > {};
 
+class OtherGlobalPoolAlloc:
+    public baka::alloc::GlobalAlloc<
+        baka::PoolAllocator<Something>,
+        16
+    > {};
+
 class Something
 {
 public:
@@ -75,12 +81,17 @@ int main(int argc, char *argv[])
     Something *db = new Something(8);
     printf("from db to bb: %llu\n", bb - db);
 
-    printf("clear global alloc\n");
+    printf("clear my global pool alloc\n");
     MyGlobalPoolAlloc::Get().Clear();
     ab = new Something(9);
     bb = new Something(10);
     cb = new Something(11);
     printf("from ab to cb: %llu\n", cb - ab);
+
+    Something *ac = OtherGlobalPoolAlloc::Get().Alloc();
+    delete ab;
+    printf("ab and ac at same location: %s\n", (ac == ab? "True" : "False"));
+    printf("ab to ac: %llu\n", ac - ab);
 
     return 0;
 }
