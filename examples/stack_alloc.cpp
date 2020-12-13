@@ -57,13 +57,13 @@ int main(int argc, char *argv[])
     char *msg = (char*)stack.alloc(16);
     printf("allocate 16 bytes\n");
     print_stack(&stack);
-    snprintf(msg, 16, "Hola cómo le va?");
+    snprintf(msg, 16, "cómo le va?");
     printf("%s\n", msg);
 
     baka::alloc::Marker marker = stack.getMarker();
     
-    printf("allocate a person (%zu)\n", sizeof Person);
-    Person *person = (Person*)stack.alloc(sizeof Person);
+    printf("allocate a person (%zu)\n", sizeof(Person));
+    Person *person = (Person*)stack.alloc(sizeof(Person));
     print_stack(&stack);
     
     printf("allocate person name (32 bytes)\n");

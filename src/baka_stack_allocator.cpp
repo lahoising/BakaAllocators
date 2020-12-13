@@ -1,4 +1,4 @@
-#include <memory>
+#include <cstdlib>
 #include <baka_stack_allocator.h>
 
 namespace baka

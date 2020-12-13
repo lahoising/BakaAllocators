@@ -1,4 +1,4 @@
-#include <memory>
+#include <cstdlib>
 #include <baka_double_stack_allocator.h>
 
 namespace baka
@@ -6,7 +6,7 @@ namespace baka
     
 DoubleStackAllocator::DoubleStackAllocator(size_t size)
 {
-    this->m_stack = (char*)malloc(size);
+    this->m_stack = (char*)std::malloc(size);
     this->m_sizeOfStack = size;
     this->m_lowerTop = 0;
     this->m_upperTop = size;
@@ -14,7 +14,7 @@ DoubleStackAllocator::DoubleStackAllocator(size_t size)
 
 DoubleStackAllocator::~DoubleStackAllocator()
 {
-    if(this->m_stack) free(this->m_stack);
+    if(this->m_stack) std::free(this->m_stack);
 }
 
 void *DoubleStackAllocator::allocLower(size_t size)
